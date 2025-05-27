@@ -1,0 +1,253 @@
+{% extends 'booking/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Booking Details{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold">Booking Confirmation</h1>
+                <div class="text-right">
+                    <div class="text-sm text-gray-600">Booking Reference</div>
+                    <div class="text-xl font-bold text-green-600">{{ booking.booking_reference }}</div>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="flex-1">
+                    <div class="text-lg font-semibold">{{ booking.hotel.name }}</div>
+                    <div class="text-gray-600">{{ booking.hotel.city }}, {{ booking.hotel.area }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Booking Details -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-6">Booking Details</h2>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-gray-600">Check-in Date</div>
+                            <div class="font-semibold">{{ booking.check_in_date|date:"M d, Y" }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600">Check-out Date</div>
+                            <div class="font-semibold">{{ booking.check_out_date|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-gray-600">Guests</div>
+                            <div class="font-semibold">{{ booking.guests }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-600">Nights</div>
+                            <div class="font-semibold">{{ booking.nights }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-gray-600">Room Type</div>
+                        <div class="font-semibold">{{ booking.room.room_type }}</div>
+                    </div>
+
+                    {% if booking.special_requests %}
+                    <div>
+                        <div class="text-sm text-gray-600">Special Requests</div>
+                        <div class="font-semibold">{{ booking.special_requests }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="border-t pt-4">
+                        <div class="text-sm text-gray-600">Total Amount</div>
+                        <div class="text-2xl font-bold text-green-600">₹{{ booking.total_amount }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-6">Guest Information</h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm text-gray-600">Guest Name</div>
+                        <div class="font-semibold">{{ booking.user.first_name }} {{ booking.user.last_name }}</div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-gray-600">Email</div>
+                        <div class="font-semibold">{{ booking.user.email }}</div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-gray-600">Username</div>
+                        <div class="font-semibold">{{ booking.user.username }}</div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-gray-600">Booking Date</div>
+                        <div class="font-semibold">{{ booking.created_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-6 pt-6 border-t">
+                    {% if booking.booking_status == 'confirmed' or booking.booking_status == 'pending' %}
+                    <a href="{% url 'booking:cancel_booking' booking.id %}"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center block mb-3">
+                        Cancel Booking
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'booking:booking_history' %}"
+                        class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded text-center block">
+                        View All Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hotel Information -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+            <h2 class="text-xl font-semibold mb-6">Hotel Information</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {% if booking.room.images and booking.room.images|length > 0 %}
+                        {% if booking.room.images|length > 1 %}
+                        <!-- Room Image Slider for multiple images -->
+                        <div class="relative overflow-hidden rounded-lg">
+                            <div id="room-detail-slider" class="flex transition-transform duration-300 ease-in-out">
+                                {% for image in booking.room.images %}
+                                <img src="{{ image }}" alt="{{ booking.room.room_type }}"
+                                    class="w-full h-48 object-cover flex-shrink-0 rounded-lg">
+                                {% endfor %}
+                            </div>
+
+                            <!-- Navigation buttons -->
+                            <button onclick="prevRoomSlide()"
+                                class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <button onclick="nextRoomSlide()"
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-75">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
+                            </button>
+
+                            <!-- Dots indicator -->
+                            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                                {% for image in booking.room.images %}
+                                <button onclick="goToRoomSlide({{ forloop.counter0 }})"
+                                    class="w-2 h-2 rounded-full bg-white bg-opacity-50 hover:bg-opacity-75 room-dot-{{ forloop.counter0 }}"></button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <img src="{{ booking.room.images.0 }}" alt="{{ booking.room.room_type }}"
+                            class="w-full h-48 object-cover rounded-lg">
+                        {% endif %}
+                    {% elif booking.hotel.images and booking.hotel.images|length > 0 %}
+                        <img src="{{ booking.hotel.images.0 }}" alt="{{ booking.hotel.name }}"
+                            class="w-full h-48 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-300 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-500">No Image Available</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">{{ booking.hotel.name }}</h3>
+                    <p class="text-gray-600 mb-4">{{ booking.hotel.description|truncatewords:30 }}</p>
+
+                    <div class="flex items-center mb-2">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= booking.hotel.average_rating %}
+                                <span class="text-yellow-400">★</span>
+                            {% else %}
+                                <span class="text-gray-300">★</span>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ml-2 text-sm text-gray-600">{{ booking.hotel.hotel_type|title }}</span>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
+                        <p>{{ booking.hotel.address }}</p>
+                        <p>{{ booking.hotel.city }}, {{ booking.hotel.area }}</p>
+                    </div>
+
+                    <a href="{% url 'booking:hotel_detail' booking.hotel.id %}"
+                        class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        View Hotel Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRoomSlide = 0;
+const totalRoomSlides = {{ booking.room.images|length|default:0 }};
+
+function nextRoomSlide() {
+    if (totalRoomSlides > 1) {
+        currentRoomSlide = (currentRoomSlide + 1) % totalRoomSlides;
+        updateRoomSlider();
+    }
+}
+
+function prevRoomSlide() {
+    if (totalRoomSlides > 1) {
+        currentRoomSlide = (currentRoomSlide - 1 + totalRoomSlides) % totalRoomSlides;
+        updateRoomSlider();
+    }
+}
+
+function goToRoomSlide(index) {
+    currentRoomSlide = index;
+    updateRoomSlider();
+}
+
+function updateRoomSlider() {
+    const slider = document.getElementById('room-detail-slider');
+    const translateX = -currentRoomSlide * 100;
+    slider.style.transform = `translateX(${translateX}%)`;
+    
+    // Update dots
+    const dots = document.querySelectorAll('[class*="room-dot-"]');
+    dots.forEach((dot, index) => {
+        if (index === currentRoomSlide) {
+            dot.classList.add('bg-opacity-100');
+            dot.classList.remove('bg-opacity-50');
+        } else {
+            dot.classList.add('bg-opacity-50');
+            dot.classList.remove('bg-opacity-100');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (totalRoomSlides > 1) {
+        updateRoomSlider();
+    }
+});
+</script>
+{% endblock %}

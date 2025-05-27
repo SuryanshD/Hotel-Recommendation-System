@@ -1,0 +1,230 @@
+{% extends 'booking/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Book {{ hotel.name }}{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h1 class="text-3xl font-bold mb-4">Complete Your Booking</h1>
+            <div class="flex items-center space-x-4">
+                <div>
+                    <h2 class="text-xl font-semibold">{{ hotel.name }}</h2>
+                    <p class="text-gray-600">{{ hotel.city }}, {{ hotel.area }}</p>
+                </div>
+                <div class="ml-auto text-right">
+                    <div class="text-lg font-semibold">{{ room.room_type }}</div>
+                    <div class="text-2xl font-bold text-green-600">₹{{ room.price_per_night }}/night</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Booking Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold mb-6">Booking Details</h3>
+                    
+                    {% if form.errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                            <h4 class="text-red-800 font-semibold">Please correct the following errors:</h4>
+                            <ul class="mt-2 text-red-700">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post" id="booking-form">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
+                                {{ form.check_in_date }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
+                                {{ form.check_out_date }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Number of Guests</label>
+                            {{ form.guests }}
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests (Optional)</label>
+                            {{ form.special_requests }}
+                        </div>
+                        
+                        <div class="border-t pt-6 mb-6">
+                            <h4 class="text-lg font-semibold mb-4">Guest Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                    <input type="text" name="guest_name" value="{{ user.first_name }}" 
+                                           class="form-input" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                    <input type="text" name="guest_last_name" value="{{ user.last_name }}" 
+                                           class="form-input" readonly>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" name="guest_email" value="{{ user.email }}" 
+                                       class="form-input" readonly>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel" name="guest_phone" placeholder="Enter your phone number" 
+                                       class="form-input" required>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <a href="{% url 'booking:hotel_detail' hotel.id %}" 
+                               class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded">
+                                Back to Hotel
+                            </a>
+                            <button type="submit" 
+                                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded">
+                                Confirm Booking
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Booking Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h3 class="text-xl font-semibold mb-4">Booking Summary</h3>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Hotel:</span>
+                            <span class="font-semibold">{{ hotel.name }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Room:</span>
+                            <span class="font-semibold">{{ room.room_type }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Price per night:</span>
+                            <span class="font-semibold">₹{{ room.price_per_night }}</span>
+                        </div>
+                    </div>
+                    
+                    <div id="booking-calculation" class="border-t pt-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Nights:</span>
+                            <span id="nights-count">-</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span id="subtotal">₹0</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Taxes & Fees:</span>
+                            <span id="taxes">₹0</span>
+                        </div>
+                        <div class="border-t pt-2">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>Total:</span>
+                                <span id="total-amount">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-green-600 font-semibold">✓ Free Cancellation</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Cancel up to 24 hours before check-in</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInInput = document.getElementById('id_check_in_date');
+    const checkOutInput = document.getElementById('id_check_out_date');
+    const pricePerNight = {{ room.price_per_night }};
+    const taxRate = 0.18; // 18% tax
+    
+    function calculateTotal() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        
+        if (checkIn && checkOut && checkOut > checkIn) {
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const subtotal = nights * pricePerNight;
+            const taxes = subtotal * taxRate;
+            const total = subtotal + taxes;
+            
+            document.getElementById('nights-count').textContent = nights;
+            document.getElementById('subtotal').textContent = '₹' + subtotal.toLocaleString();
+            document.getElementById('taxes').textContent = '₹' + taxes.toLocaleString();
+            document.getElementById('total-amount').textContent = '₹' + total.toLocaleString();
+        } else {
+            document.getElementById('nights-count').textContent = '-';
+            document.getElementById('subtotal').textContent = '₹0';
+            document.getElementById('taxes').textContent = '₹0';
+            document.getElementById('total-amount').textContent = '₹0';
+        }
+    }
+    
+    checkInInput.addEventListener('change', calculateTotal);
+    checkOutInput.addEventListener('change', calculateTotal);
+    calculateTotal();
+    
+    const today = new Date().toISOString().split('T')[0];
+    checkInInput.setAttribute('min', today);
+    
+    checkInInput.addEventListener('change', function() {
+        const checkInDate = new Date(this.value);
+        const nextDay = new Date(checkInDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        checkOutInput.setAttribute('min', nextDay.toISOString().split('T')[0]);
+    });
+});
+</script>
+
+<style>
+    .form-input, .form-select, .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 1rem;
+    }
+    
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+</style>
+{% endblock %}

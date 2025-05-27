@@ -1,0 +1,234 @@
+{% extends 'accounts/layouts/base.html' %}
+{% load static %}
+{% block title %}
+Set Your Preferences
+{% endblock title %}
+{% block extra_head %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- noUiSlider CSS -->
+<link href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css" rel="stylesheet">
+<style>
+    .tags-container {
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        min-height: 2.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        cursor: text;
+    }
+
+    .tags-container:focus-within {
+        border-color: #10b981;
+        box-shadow: 0 0 0 1px #10b981;
+    }
+
+    .tag {
+        background-color: #10b981;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .tag-remove {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .tag-input {
+        border: none;
+        outline: none;
+        flex: 1;
+        min-width: 100px;
+    }
+</style>
+{% endblock extra_head %}
+{% block content %}
+{% include 'accounts/layouts/header.html' %}
+<div class="min-h-screen flex flex-col">
+    <div class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="max-w-2xl w-full bg-white rounded-lg shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">Set Your Preferences</h2>
+                <p class="text-gray-600 mt-2">Help us personalize your experience</p>
+            </div>
+            {% if messages %}
+            {% for message in messages %}
+            <div
+                class="mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Cities</label>
+                    <select id="locations-select" name="locations" multiple class="w-full">
+                        <!-- option will be append through javascript -->
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Select cities you're interested in</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Amenities</label>
+                    <div id="amenities-container" class="tags-container">
+                        <input type="text" id="amenities-input" class="tag-input"
+                            placeholder="Type amenity and press Enter">
+                    </div>
+                    <input type="hidden" name="amenities" id="amenities-hidden">
+                    <p class="mt-1 text-sm text-gray-500">Add amenities you're looking for (gym, pool, parking, etc.)
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                    <div class="px-4 py-6">
+                        <div id="price-slider"></div>
+                        <div class="flex justify-between mt-4 text-sm text-gray-600">
+                            <span>₹<span id="price-min">0</span></span>
+                            <span>₹<span id="price-max">1000000</span></span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="price_range_from" id="price-from">
+                    <input type="hidden" name="price_range_to" id="price-to">
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit"
+                        class="flex-1 flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 !cursor-pointer">
+                        Save Preferences
+                    </button>
+                    <a href=""
+                        class="flex-1 flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 cursor-pointer">
+                        Skip for Now
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- noUiSlider JS -->
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+<!-- Indian Cities JS -->
+<script src="{% static 'js/indian-cities.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cities = getIndianCities();
+        const locationsSelect = $('#locations-select');
+        cities.forEach(city => {
+            locationsSelect.append(new Option(city, city, false, false));
+        });
+
+        // Initialize Select2 with cities as options
+        locationsSelect.select2({
+            placeholder: 'Select cities...',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Set initial values if editing
+        {% if form.instance.locations %}
+            const initialLocations = {{ form.instance.locations|safe }};
+            if (initialLocations && initialLocations.length > 0) {
+                locationsSelect.val(initialLocations).trigger('change');
+            }
+        {% endif %}
+
+    const amenitiesContainer = document.getElementById('amenities-container');
+    const amenitiesInput = document.getElementById('amenities-input');
+    const amenitiesHidden = document.getElementById('amenities-hidden');
+    let amenitiesTags = [];
+
+    {% if form.instance.amenities %}
+    amenitiesTags = {{ form.instance.amenities | safe }};
+    renderAmenitiesTags();
+    {% endif %}
+
+    // Render the amenities in tags format once user adds them or on edit page load
+    function renderAmenitiesTags() {
+        const existingTags = amenitiesContainer.querySelectorAll('.tag');
+        existingTags.forEach(tag => tag.remove());
+
+        amenitiesTags.forEach((tag, index) => {
+            const tagElement = document.createElement('div');
+            tagElement.className = 'tag';
+            tagElement.innerHTML = `
+                        ${tag}
+                        <span class="tag-remove" onclick="removeAmenityTag(${index})">×</span>
+                    `;
+            amenitiesContainer.insertBefore(tagElement, amenitiesInput);
+        });
+
+        amenitiesHidden.value = amenitiesTags.join(',');
+    }
+
+    window.removeAmenityTag = function (index) {
+        amenitiesTags.splice(index, 1);
+        renderAmenitiesTags();
+    };
+
+    amenitiesInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const value = this.value.trim();
+            if (value && !amenitiesTags.includes(value)) {
+                amenitiesTags.push(value);
+                renderAmenitiesTags();
+                this.value = '';
+            }
+        }
+    });
+
+    amenitiesContainer.addEventListener('click', function () {
+        amenitiesInput.focus();
+    });
+
+    const priceSlider = document.getElementById('price-slider');
+    const priceMin = document.getElementById('price-min');
+    const priceMax = document.getElementById('price-max');
+    const priceFrom = document.getElementById('price-from');
+    const priceTo = document.getElementById('price-to');
+
+    const initialMin = {% if form.instance.price_range_from %}{{ form.instance.price_range_from }}{% else %} 0{% endif %};
+    const initialMax = {% if form.instance.price_range_to %}{{ form.instance.price_range_to }}{% else %} 5000{% endif %};
+
+    noUiSlider.create(priceSlider, {
+        start: [initialMin, initialMax],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 100000
+        },
+        step: 50,
+        format: {
+            to: function (value) {
+                return Math.round(value);
+            },
+            from: function (value) {
+                return Number(value);
+            }
+        }
+    });
+
+    priceSlider.noUiSlider.on('update', function (values, handle) {
+        const minVal = values[0];
+        const maxVal = values[1];
+
+        priceMin.textContent = minVal;
+        priceMax.textContent = maxVal;
+        priceFrom.value = minVal;
+        priceTo.value = maxVal;
+    });
+        });
+</script>
+{% endblock scripts %}

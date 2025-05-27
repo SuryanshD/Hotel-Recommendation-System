@@ -1,0 +1,73 @@
+.slider-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.slider-track {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+}
+
+.slider-slide {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.slider-nav:hover {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.slider-nav.prev {
+    left: 8px;
+}
+
+.slider-nav.next {
+    right: 8px;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+}
+
+.slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.slider-dot.active {
+    background: rgba(255, 255, 255, 1);
+}
+
+.slider-counter {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+}

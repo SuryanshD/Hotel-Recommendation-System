@@ -1,0 +1,46 @@
+<footer class="bg-gray-800 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 ">
+            <!-- Company Info -->
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold">HB</span>
+                    </div>
+                    <span class="text-xl font-bold">HotelBooking</span>
+                </div>
+                <p class="text-gray-300 text-sm">
+                    Your trusted partner for finding and booking the perfect hotel for your stay.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'booking:search' %}" class="text-gray-300 hover:text-white transition duration-200">Search Hotels</a></li>
+                    <li><a href="{% url 'booking:hotel_list' %}" class="text-gray-300 hover:text-white transition duration-200">Browse Hotels</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'booking:booking_history' %}" class="text-gray-300 hover:text-white transition duration-200">My Bookings</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                <div class="space-y-2 text-gray-300 text-sm">
+                    <p>📧 support@hotelbooking.com</p>
+                    <p>📞 +91-1234567890</p>
+                    <p>🕒 24/7 Customer Support</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+            <p class="text-gray-300 text-sm">
+                © {% now "Y" %} HotelBooking. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "hotel-booking"
+version = "0.1.0"
+description = ""
+authors = ["suryanshdeoli12"]
+license = "LICENSE"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.2.1"
+django-tailwind = {extras = ["reload"], version = "^4.0.1"}
+django-environ = "^0.12.0"
+scikit-surprise = "^1.1.4"
+numpy = "<2"
+whitenoise = "^6.9.0"
+pandas = "^2.2.3"
+scikit-learn = "^1.6.1"
+faker = "^37.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

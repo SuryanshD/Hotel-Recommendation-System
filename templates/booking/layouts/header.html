@@ -1,0 +1,168 @@
+{% load static %}
+<header class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo/Brand -->
+            <div class="flex items-center space-x-2">
+                <a href="{% url 'booking:search' %}" class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">HB</span>
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800">HotelBooking</span>
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{% url 'booking:search' %}" 
+                   class="text-gray-700 hover:text-green-600 font-medium transition duration-200 
+                          {% if request.resolver_match.url_name == 'search' %}text-green-600 border-b-2 border-green-600{% endif %}">
+                    Search Hotels
+                </a>
+                
+                <a href="{% url 'booking:hotel_list' %}" 
+                   class="text-gray-700 hover:text-green-600 font-medium transition duration-200
+                          {% if request.resolver_match.url_name == 'hotel_list' %}text-green-600 border-b-2 border-green-600{% endif %}">
+                    Browse Hotels
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'booking:booking_history' %}" 
+                       class="text-gray-700 hover:text-green-600 font-medium transition duration-200
+                              {% if request.resolver_match.url_name == 'booking_history' %}text-green-600 border-b-2 border-green-600{% endif %}">
+                        My Bookings
+                    </a>
+                {% endif %}
+
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User Dropdown -->
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-green-600 font-medium">
+                                <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-sm font-bold">
+                                        {{ user.first_name|first|default:user.username|first|upper }}
+                                    </span>
+                                </div>
+                                <span>{{ user.first_name|default:user.username }}</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                <div class="py-1">
+                                    <a href="{% url 'user_preferences' %}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Preferences
+                                    </a>
+                                    <a href="{% url 'booking:booking_history' %}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        My Bookings
+                                    </a>
+                                    <div class="border-t border-gray-100"></div>
+                                    <a href="{% url 'logout' %}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" 
+                           class="text-gray-700 hover:text-green-600 font-medium transition duration-200">
+                            Login
+                        </a>
+                        <a href="{% url 'register' %}" 
+                           class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-700 hover:text-green-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden hidden mt-4 pb-4">
+            <div class="flex flex-col space-y-4">
+                <a href="{% url 'booking:search' %}" 
+                   class="text-gray-700 hover:text-green-600 font-medium py-2 border-b border-gray-200
+                          {% if request.resolver_match.url_name == 'search' %}text-green-600{% endif %}">
+                    Search Hotels
+                </a>
+                
+                <a href="{% url 'booking:hotel_list' %}" 
+                   class="text-gray-700 hover:text-green-600 font-medium py-2 border-b border-gray-200
+                          {% if request.resolver_match.url_name == 'hotel_list' %}text-green-600{% endif %}">
+                    Browse Hotels
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'booking:booking_history' %}" 
+                       class="text-gray-700 hover:text-green-600 font-medium py-2 border-b border-gray-200
+                              {% if request.resolver_match.url_name == 'booking_history' %}text-green-600{% endif %}">
+                        My Bookings
+                    </a>
+                    
+                    <a href="{% url 'user_preferences' %}" 
+                       class="text-gray-700 hover:text-green-600 font-medium py-2 border-b border-gray-200">
+                        Preferences
+                    </a>
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">{{ user.first_name|default:user.username }}</div>
+                                <div class="text-sm text-gray-500">{{ user.email }}</div>
+                            </div>
+                        </div>
+                        <a href="{% url 'logout' %}" 
+                           class="block w-full text-left bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Logout
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="pt-4 border-t border-gray-200 space-y-3">
+                        <a href="{% url 'login' %}" 
+                           class="block text-center border border-green-600 text-green-600 hover:bg-green-50 font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Login
+                        </a>
+                        <a href="{% url 'register' %}" 
+                           class="block text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                            Sign Up
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Mobile Menu JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+});
+</script>

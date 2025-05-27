@@ -1,0 +1,157 @@
+{% extends 'booking/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Hotels{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Search Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div>
+                {{ search_form.city }}
+            </div>
+            <div>
+                {{ search_form.area }}
+            </div>
+            <div>
+                {{ search_form.check_in_date }}
+            </div>
+            <div>
+                {{ search_form.check_out_date }}
+            </div>
+            <div>
+                {{ search_form.guests }}
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Filters Sidebar -->
+        <div class="lg:w-1/4">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Filters</h3>
+                <form method="get" id="filter-form">
+                    <!-- Preserve search parameters -->
+                    {% for key, value in request.GET.items %}
+                        {% if key not in 'sort_by,hotel_type,star_rating,amenities' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                            {{ filter_form.sort_by }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hotel Type</label>
+                            {{ filter_form.hotel_type }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Star Rating</label>
+                            {{ filter_form.star_rating }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
+                            {{ filter_form.amenities }}
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Hotels List -->
+        <div class="lg:w-3/4">
+            {% if recommended_hotels %}
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Recommended for You</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    {% for hotel in recommended_hotels %}
+                        {% include 'booking/partials/hotel_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">
+                    {% if hotels %}
+                        {{ hotels|length }} Hotels Found
+                    {% else %}
+                        No Hotels Found
+                    {% endif %}
+                </h2>
+            </div>
+
+            {% if hotels %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for hotel in hotels %}
+                        {% include 'booking/partials/hotel_card.html' %}
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">First</a>
+                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                        {% endif %}
+
+                        <span class="px-3 py-2 bg-green-600 text-white rounded">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Last</a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="text-gray-500 text-lg">No hotels found matching your criteria.</div>
+                    <a href="{% url 'booking:search' %}" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        Try New Search
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-input, .form-select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+</style>
+{% endblock %}

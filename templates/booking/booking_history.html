@@ -1,0 +1,120 @@
+{% extends 'booking/layouts/base.html' %}
+{% load static %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">My Bookings</h1>
+
+        {% if bookings %}
+        <div class="space-y-6">
+            {% for booking in bookings %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-4">
+                                {% if booking.hotel.images and booking.hotel.images|length > 0 %}
+                                <img src="{{ booking.hotel.images.0 }}" alt="{{ booking.hotel.name }}"
+                                    class="w-16 h-16 object-cover rounded">
+                                {% else %}
+                                <div class="w-16 h-16 bg-gray-300 rounded flex items-center justify-center">
+                                    <span class="text-xs text-gray-500">No Image</span>
+                                </div>
+                                {% endif %}
+
+                                <div>
+                                    <h3 class="text-xl font-semibold">{{ booking.hotel.name }}</h3>
+                                    <p class="text-gray-600">{{ booking.hotel.city }}, {{ booking.hotel.area }}</p>
+                                    <p class="text-sm text-gray-500">{{ booking.room.room_type }}</p>
+                                </div>
+                            </div>
+
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <div class="text-gray-600">Check-in</div>
+                                    <div class="font-semibold">{{ booking.check_in_date|date:"M d, Y" }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Check-out</div>
+                                    <div class="font-semibold">{{ booking.check_out_date|date:"M d, Y" }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Guests</div>
+                                    <div class="font-semibold">{{ booking.guests }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-600">Total</div>
+                                    <div class="font-semibold text-green-600">₹{{ booking.total_amount }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 md:mt-0 md:ml-6 flex flex-col items-end space-y-3">
+
+                            <div class="text-sm text-gray-500">
+                                Ref: {{ booking.booking_reference }}
+                            </div>
+
+                            <div class="flex space-x-2">
+                                <a href="{% url 'booking:booking_detail' booking.id %}"
+                                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                    View Details
+                                </a>
+
+                                {% if booking.booking_status == 'confirmed' or booking.booking_status == 'pending' %}
+                                <a href="{% url 'booking:cancel_booking' booking.id %}"
+                                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                    Cancel
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page=1" class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}"
+                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Previous</a>
+                {% endif %}
+
+                <span class="px-3 py-2 bg-green-600 text-white rounded">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}"
+                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Last</a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-gray-500 text-lg mb-4">You haven't made any bookings yet.</div>
+            <a href="{% url 'booking:search' %}"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded">
+                Start Booking
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

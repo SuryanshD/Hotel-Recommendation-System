@@ -1,0 +1,310 @@
+{% extends 'booking/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Search Hotels{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* get image from image/sample_hotel.jpg */
+    .bg-image {
+        background-image: url('{% static "image/sample_hotel.jpg" %}');
+        background-size: cover;
+        background-position: center;
+    }
+    .city-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .city-card:hover {
+        transform: translateY(-5px);
+    }
+    .city-image {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="bg-gradient-to-tr from-green-500 to-lime-400">
+    <div class="bg-image text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Find Your Perfect Stay</h1>
+        <p class="text-xl md:text-2xl mb-8">Discover amazing hotels at the best prices</p>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-xl p-8 -mt-16 relative z-10">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <input type="text" name="city" id="city-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter city name" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Area (Optional)</label>
+                        <input type="text" name="area" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter area">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Guests</label>
+                        <select name="guests" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                            <option value="">Select guests</option>
+                            <option value="1">1 Guest</option>
+                            <option value="2">2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                            <option value="5">5+ Guests</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
+                        <input type="date" name="check_in_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
+                        <input type="date" name="check_out_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min Price (₹)</label>
+                        <input type="number" name="min_price" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Minimum price">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Price (₹)</label>
+                        <input type="number" name="max_price" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Maximum price">
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition duration-200 transform hover:scale-105">
+                        Search Hotels
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Destinations Section -->
+<div class="container mx-auto px-4 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Popular Destinations</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Mumbai -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Mumbai')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/mumbai.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Mumbai</h3>
+                        <p class="text-gray-200">Financial Capital</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delhi -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Delhi')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/delhi.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Delhi</h3>
+                        <p class="text-gray-200">Capital City</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bangalore -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Bangalore')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/bangalore.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Bangalore</h3>
+                        <p class="text-gray-200">Silicon Valley of India</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goa -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Goa')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/goa.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Goa</h3>
+                        <p class="text-gray-200">Beach Paradise</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chennai -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Chennai')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/chennai.jpg' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Chennai</h3>
+                        <p class="text-gray-200">Gateway to South India</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kolkata -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Kolkata')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/bangalore.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Kolkata</h3>
+                        <p class="text-gray-200">City of Joy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jaipur -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Jaipur')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/jaipur.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Jaipur</h3>
+                        <p class="text-gray-200">Pink City</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hyderabad -->
+        <div class="city-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300" 
+             onclick="selectCity('Hyderabad')">
+            <div class="h-48 city-image relative" 
+                 style="background-image: url('{% static 'image/mumbai.avif' %}');">
+                <div class="h-full bg-opacity-30 flex items-end">
+                    <div class="p-4 text-white">
+                        <h3 class="font-bold text-xl">Hyderabad</h3>
+                        <p class="text-gray-200">Cyberabad</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    const checkinInput = document.querySelector('input[name="check_in_date"]');
+    const checkoutInput = document.querySelector('input[name="check_out_date"]');
+    
+    checkinInput.setAttribute('min', today);
+    checkoutInput.setAttribute('min', today);
+    
+    // Set default dates (today and tomorrow)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    if (!checkinInput.value) {
+        checkinInput.value = today;
+    }
+    if (!checkoutInput.value) {
+        checkoutInput.value = tomorrowStr;
+    }
+    
+    // Update checkout date when checkin date changes
+    checkinInput.addEventListener('change', function() {
+        const checkinDate = new Date(this.value);
+        const checkoutDate = new Date(checkinDate);
+        checkoutDate.setDate(checkoutDate.getDate() + 1);
+        
+        checkoutInput.setAttribute('min', checkoutDate.toISOString().split('T')[0]);
+        
+        if (checkoutInput.value && new Date(checkoutInput.value) <= checkinDate) {
+            checkoutInput.value = checkoutDate.toISOString().split('T')[0];
+        }
+    });
+
+    // Check if city parameter is passed in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityParam = urlParams.get('city');
+    if (cityParam) {
+        document.getElementById('city-input').value = cityParam;
+    }
+});
+
+// Function to handle city card clicks
+function selectCity(cityName) {
+    // Get current form values
+    const checkinDate = document.querySelector('input[name="check_in_date"]').value;
+    const checkoutDate = document.querySelector('input[name="check_out_date"]').value;
+    const guests = document.querySelector('select[name="guests"]').value || '2';
+    
+    // Set default dates if not selected
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    // Build URL parameters
+    const params = new URLSearchParams({
+        city: cityName,
+        check_in_date: checkinDate || today,
+        check_out_date: checkoutDate || tomorrowStr,
+        guests: guests
+    });
+    
+    // Redirect to hotel list page with search parameters
+    window.location.href = `/booking/hotels/?${params.toString()}`;
+}
+
+// Add loading animation for city cards
+document.querySelectorAll('.city-card').forEach(card => {
+    card.addEventListener('click', function() {
+        // Add loading state
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
+        
+        // Add loading spinner
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'absolute inset-0 flex items-center justify-center bg-black bg-opacity-50';
+        loadingDiv.innerHTML = `
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        `;
+        this.style.position = 'relative';
+        this.appendChild(loadingDiv);
+    });
+});
+</script>
+{% endblock %}

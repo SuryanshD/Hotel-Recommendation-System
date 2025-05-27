@@ -1,0 +1,28 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block main_title %}
+    {% block title %}Hotel Booking System{% endblock %}
+{% endblock main_title %}
+
+{% block main_heading %}
+    <link rel="stylesheet" href="{% static 'css/slider.css' %}">
+    {% block extra_head %}
+    {% endblock extra_head %}
+{% endblock main_heading %}
+
+{% block main_content %}
+    {% include 'booking/layouts/header.html' %}
+    
+    <main class="min-h-screen bg-gray-50">
+        {% block content %}
+        {% endblock content %}
+    </main>
+    
+    {% include 'booking/layouts/footer.html' %}
+{% endblock main_content %}
+
+{% block main_scripts %}
+    {% block scripts %}
+    {% endblock scripts %}
+{% endblock main_scripts %}
