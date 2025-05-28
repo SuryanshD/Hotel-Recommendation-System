@@ -103,12 +103,12 @@ class HotelListView(ListView):
                 queryset = queryset.order_by("-average_rating", "-total_reviews")
             elif sort_by == "price_low":
                 queryset = queryset.annotate(
-                    min_price=Min("rooms__price_per_night")
-                ).order_by("min_price")
+                    room_min_price=Min("rooms__price_per_night")
+                ).order_by("room_min_price")
             elif sort_by == "price_high":
                 queryset = queryset.annotate(
-                    min_price=Min("rooms__price_per_night")
-                ).order_by("-min_price")
+                    room_min_price=Min("rooms__price_per_night")
+                ).order_by("-room_min_price")
             elif sort_by == "name":
                 queryset = queryset.order_by("name")
 
