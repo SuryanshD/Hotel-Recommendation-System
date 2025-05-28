@@ -35,7 +35,9 @@ RUN python manage.py collectstatic --noinput
 
 RUN mkdir -p /app/data && chmod 755 /app/data
 
-RUN python manage.py makemigrations
+RUN python manage.py migrate
+
+RUN python manage.py makemigrations booking
 
 RUN python manage.py migrate
 
