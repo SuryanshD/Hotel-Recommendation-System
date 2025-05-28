@@ -7,15 +7,11 @@ A hotel booking web application that allows users to search, view, and reserve h
 1. Build Image
     1.1 Build the docker from local
     ```
-    docker build -t hotel-booking-recommendation-system . 
-    ```
-    1.2 Build the docker from docker hub
-    ```
-    docker pull username/hotel-booking-recommendation-system
+    docker-compose build  
     ```
 2. Run the docker image
 ```
-docker run -d -p 8000:8000 --name hotel-booking hotel-recommendation-system
+    docker-compose up -d
 ```
 3. Access the aapplication in your web browser at http://localhost:8000/
 

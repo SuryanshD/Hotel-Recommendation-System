@@ -41,7 +41,7 @@ RUN python manage.py makemigrations booking
 
 RUN python manage.py migrate
 
-RUN python manage.py generate_sample_data --hotels 10
+RUN python manage.py generate_sample_data --hotels 1000
 
 EXPOSE 8000
 

@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    container_name: hotel_web
+    container_name: hotel_recommendation_system
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
@@ -11,7 +11,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: hotel_nginx
+    container_name: nginx_server
     ports:
       - "80:80"
     volumes:
